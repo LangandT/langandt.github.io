@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Art Gallery — Lang & T</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+    :root {
+      --navy: #0e2a47;
+      --navy-deep: #081826;
+      --teal: #13938a;
+      --teal-light: #e6f3f2;
+      --purple: #6c3fa8;
+      --orange: #e08424;
+      --blue: #1f7fc4;
+      --ink: #16232f;
+      --muted: #5c6b78;
+      --line: #d9e2e6;
+      --paper: #fbfcfc;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 32px; }
+
+    /* HEADER & NAV */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0;
+    }
+
+    nav .brand { display: flex; align-items: center; gap: 12px; }
+    nav .brand img { height: 42px; }
+    nav .brand span {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--navy-deep);
+    }
+
+    nav .nav-links { display: flex; gap: 28px; font-size: 0.92rem; font-weight: 500; }
+    nav .nav-links a { color: var(--ink); transition: color 0.2s ease; }
+    nav .nav-links a:hover { color: var(--teal); }
+
+    /* PAGE HERO */
+    .page-hero {
+      background: linear-gradient(120deg, var(--navy-deep) 0%, var(--navy) 60%, var(--teal) 145%);
+      color: #fff;
+      padding: 48px 0;
+      margin-bottom: 48px;
+    }
+
+    .page-hero h1 {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 800;
+      font-size: 2rem;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+
+    .page-hero p {
+      font-size: 0.95rem;
+      color: #d7e6e4;
+      max-width: 600px;
+    }
+
+    /* FILTERS & CONTROLS */
+    .gallery-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filter-label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border: 1.5px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+
+    .filter-btn.active {
+      background: var(--teal);
+      color: #fff;
+      border-color: var(--teal);
+    }
+
+    .gallery-sort {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .gallery-sort select {
+      padding: 8px 12px;
+      border: 1.5px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    /* GALLERY GRID */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .gallery-item {
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid var(--line);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      height: 300px;
+    }
+
+    .gallery-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .gallery-item-image {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .gallery-item-info {
+      padding: 16px;
+      height: 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .gallery-item-title {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--navy-deep);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .gallery-item-category {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      width: fit-content;
+    }
+
+    .category-abstract { background: #e9f1fb; color: var(--blue); }
+    .category-portrait { background: #f1eaf9; color: var(--purple); }
+    .category-landscape { background: #fff4e6; color: var(--orange); }
+    .category-surreal { background: var(--teal-light); color: var(--teal); }
+
+    /* LIGHTBOX */
+    .lightbox {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .lightbox.active { display: flex; }
+
+    .lightbox-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .lightbox-content {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .lightbox-image {
+      max-width: 100%;
+      max-height: 70vh;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .lightbox-info {
+      width: 100%;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .lightbox-info h3 {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .lightbox-info p {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      z-index: 1001;
+    }
+
+    .lightbox-close:hover { background: rgba(255, 255, 255, 0.3); }
+
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .lightbox-nav:hover { background: rgba(255, 255, 255, 0.3); }
+
+    .lightbox-prev { left: 20px; }
+    .lightbox-next { right: 20px; }
+
+    .lightbox-counter {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    /* EMPTY STATE */
+    .no-results {
+      text-align: center;
+      padding: 48px 0;
+      color: var(--muted);
+    }
+
+    .no-results-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+    }
+
+    .no-results h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+      color: var(--navy-deep);
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 32px 0;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      margin-top: 48px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 860px) {
+      .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+      nav .nav-links { display: none; }
+      .page-hero h1 { font-size: 1.5rem; }
+      .gallery-controls { flex-direction: column; align-items: flex-start; }
+      .gallery-sort { width: 100%; }
+      .gallery-sort select { width: 100%; }
+    }
+
+    @media (max-width: 520px) {
+      .wrap { padding: 0 16px; }
+      .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+      .gallery-item { height: 240px; }
+      .gallery-item-image { height: 180px; }
+      .lightbox-nav { width: 40px; height: 40px; font-size: 1.2rem; }
+      .lightbox-prev { left: 10px; }
+      .lightbox-next { right: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <div class="brand">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXgAAAEtCAIAAACNvOy1AACbDElEQVR4nOy9d5wc13Um+p1zb1V198wgEQRzzkmMIilKTMqirBwsOclry2uvZHm9tp4lh11n71rrZz9bzlGWFaxkJYtKpCiSophzziQIkMiY1[...]" alt="Lang & T">
+      <span>Lang & T</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html#what-we-do">What We Do</a>
+      <a href="index.html#courses">Courses</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="enroll.html">Enroll</a>
+    </div>
+  </nav>
+</div>
+
+<section class="page-hero">
+  <div class="wrap">
+    <h1>AI Art Gallery</h1>
+    <p>Explore our collection of stunning AI-generated artwork. Each piece showcases the creative possibilities when technology meets artistry.</p>
+  </div>
+</section>
+
+<div class="wrap">
+  <!-- Gallery Controls -->
+  <div class="gallery-controls">
+    <div class="filter-group">
+      <span class="filter-label">Filter by:</span>
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="abstract">Abstract</button>
+      <button class="filter-btn" data-filter="portrait">Portrait</button>
+      <button class="filter-btn" data-filter="landscape">Landscape</button>
+      <button class="filter-btn" data-filter="surreal">Surreal</button>
+    </div>
+    <div class="gallery-sort">
+      <select id="sort-by">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+        <option value="name">Name (A-Z)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Gallery Grid -->
+  <div class="gallery-grid" id="gallery-grid">
+    <!-- Gallery items will be inserted here by JavaScript -->
+  </div>
+
+  <!-- Empty State -->
+  <div class="no-results" id="no-results" style="display: none;">
+    <div class="no-results-icon">🎨</div>
+    <h3>No artwork found</h3>
+    <p>Try adjusting your filters</p>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightbox-close">&times;</button>
+  <div class="lightbox-container">
+    <button class="lightbox-nav lightbox-prev" id="lightbox-prev">‹</button>
+    <div class="lightbox-content">
+      <img class="lightbox-image" id="lightbox-image" src="" alt="">
+      <div class="lightbox-info">
+        <h3 id="lightbox-title"></h3>
+        <p id="lightbox-category"></p>
+      </div>
+    </div>
+    <button class="lightbox-nav lightbox-next" id="lightbox-next">›</button>
+  </div>
+  <div class="lightbox-counter">
+    <span id="lightbox-counter"></span>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>Lang & T &middot; Exploring AI & Creativity &middot; Skills Today, Opportunities Tomorrow</div>
+    <div class="tagline">WhatsApp <span class="whatsapp">+234 814 133 1997</span> &middot; Train &bull; Mentor &bull; Grow</div>
+  </div>
+</footer>
+
+<script>
+  // Sample artwork data - Replace with your actual AI-generated images
+  const artworkData = [
+    {
+      id: 1,
+      title: "Neural Bloom",
+      category: "abstract",
+      image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect fill='%236c3fa8' width='400' height='400'/%3E%3Ccircle cx='200' cy='200' r='150' fill='%23e08424' opacity='0.8'/%3E%3Ccircle cx='200' cy='200' r='100' fill='%2313938a' opacity='0.6'/%3E%3C/svg%3E",
+      created: "2024-09-05"
+    },
+    {
+      id: 2,
+      title: "Digital Cascade",
+      category: "landscape",
+      image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect fill='%230e2a47' width='400' height='400'/%3E%3Crect y='200' width='400' height='200' fill='%2313938a'/%3E%3Crect y='250' width='400' height='150' fill='%231f7fc4'/%3E%3C/svg%3E",
+      created: "2024-09-04"
+    },
+    {
+      id: 3,
+      title: "Ethereal Portrait",
+      category: "portrait",
+      image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Cdefs%3E%3CradialGradient id='grad1'%3E%3Cstop offset='0%25' style='stop-color:%23e08424'/%3E%3Cstop offset='100%25' style='stop-color:%236c3fa8'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect fill='url(%23grad1)' width='400' height='400'/%3E%3Ccircle cx='200' cy='200' r='80' fill='%23fbfcfc'/%3E%3C/svg%3E",
+      created: "2024-09-03"
+    },
+    {
+      id: 4,
+      title: "Quantum Dreams",
+      category: "surreal",
+      image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect fill='%231f7fc4' width='400' height='400'/%3E%3Ccircle cx='100' cy='100' r='60' fill='%23e08424' opacity='0.7'/%3E%3Ccircle cx='300' cy='300' r='80' fill='%236c3fa8' opacity='0.7'/%3E%3Ccircle cx='200' cy='200' r='40' fill='%2313938a' opacity='0.9'/%3E%3C/svg%3E",
+      created: "2024-09-02"
+    },
+    {
+      id: 5,
+      title: "Geometric Harmony",
+      category: "abstract",
+      image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect fill='%23fbfcfc' width='400' height='400'/%3E%3Crect x='50' y='50' width='100' height='100' fill='%230e2a47'/%3E%3Crect x='250' y='50' width='100' height='100' fill='%2313938a'/%3E%3Crect x='150' y='250' width='100' height='100' fill='%23e08424'/%3E%3C/svg%3E",
+      created: "2024-09-01"
+    },
+    {
+      id: 6,
+      title: "Serenity",
+      category: "landscape",
+      image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Cdefs%3E%3ClinearGradient id='grad2' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%231f7fc4'/%3E%3Cstop offset='100%25' style='stop-color:%2313938a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23grad2)' width='400' height='400'/%3E%3C/svg%3E",
+      created: "2024-08-31"
+    },
+    {
+      id: 7,
+      title: "Luminescence",
+      category: "portrait",
+      image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect fill='%236c3fa8' width='400' height='400'/%3E%3Ccircle cx='200' cy='200' r='100' fill='%23fbfcfc' opacity='0.9'/%3E%3Ccircle cx='180' cy='180' r='20' fill='%236c3fa8'/%3E%3Ccircle cx='220' cy='180' r='20' fill='%236c3fa8'/%3E%3C/svg%3E",
+      created: "2024-08-30"
+    },
+    {
+      id: 8,
+      title: "Dimensional Rift",
+      category: "surreal",
+      image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect fill='%230e2a47' width='400' height='400'/%3E%3Cpolygon points='200,50 350,250 200,350 50,250' fill='%23e08424' opacity='0.8'/%3E%3Cpolygon points='200,100 300,250 200,300 100,250' fill='%231f7fc4' opacity='0.8'/%3E%3C/svg%3E",
+      created: "2024-08-29"
+    }
+  ];
+
+  let currentFilter = 'all';
+  let currentSortOrder = 'newest';
+  let currentLightboxIndex = -1;
+  let filteredArtwork = [...artworkData];
+
+  // Initialize gallery
+  function initGallery() {
+    renderGallery();
+    attachEventListeners();
+  }
+
+  // Render gallery items
+  function renderGallery() {
+    const galleryGrid = document.getElementById('gallery-grid');
+    const noResults = document.getElementById('no-results');
+    
+    galleryGrid.innerHTML = '';
+    
+    if (filteredArtwork.length === 0) {
+      noResults.style.display = 'block';
+      return;
+    }
+    
+    noResults.style.display = 'none';
+    
+    filteredArtwork.forEach((item, index) => {
+      const categoryLabel = item.category.charAt(0).toUpperCase() + item.category.slice(1);
+      const div = document.createElement('div');
+      div.className = 'gallery-item';
+      div.innerHTML = `
+        <img src="${item.image}" alt="${item.title}" class="gallery-item-image">
+        <div class="gallery-item-info">
+          <h3 class="gallery-item-title">${item.title}</h3>
+          <span class="gallery-item-category category-${item.category}">${categoryLabel}</span>
+        </div>
+      `;
+      div.addEventListener('click', () => openLightbox(index));
+      galleryGrid.appendChild(div);
+    });
+  }
+
+  // Filter artwork
+  function filterArtwork(category) {
+    currentFilter = category;
+    if (category === 'all') {
+      filteredArtwork = [...artworkData];
+    } else {
+      filteredArtwork = artworkData.filter(item => item.category === category);
+    }
+    sortArtwork();
+    renderGallery();
+  }
+
+  // Sort artwork
+  function sortArtwork() {
+    switch (currentSortOrder) {
+      case 'newest':
+        filteredArtwork.sort((a, b) => new Date(b.created) - new Date(a.created));
+        break;
+      case 'oldest':
+        filteredArtwork.sort((a, b) => new Date(a.created) - new Date(b.created));
+        break;
+      case 'name':
+        filteredArtwork.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+    }
+  }
+
+  // Lightbox functions
+  function openLightbox(index) {
+    currentLightboxIndex = index;
+    const item = filteredArtwork[index];
+    document.getElementById('lightbox-image').src = item.image;
+    document.getElementById('lightbox-title').textContent = item.title;
+    document.getElementById('lightbox-category').textContent = item.category.charAt(0).toUpperCase() + item.category.slice(1);
+    document.getElementById('lightbox-counter').textContent = `${index + 1} / ${filteredArtwork.length}`;
+    document.getElementById('lightbox').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+    document.body.style.overflow = 'auto';
+    currentLightboxIndex = -1;
+  }
+
+  function nextImage() {
+    currentLightboxIndex = (currentLightboxIndex + 1) % filteredArtwork.length;
+    openLightbox(currentLightboxIndex);
+  }
+
+  function prevImage() {
+    currentLightboxIndex = (currentLightboxIndex - 1 + filteredArtwork.length) % filteredArtwork.length;
+    openLightbox(currentLightboxIndex);
+  }
+
+  // Attach event listeners
+  function attachEventListeners() {
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filterArtwork(btn.getAttribute('data-filter'));
+      });
+    });
+
+    // Sort dropdown
+    document.getElementById('sort-by').addEventListener('change', (e) => {
+      currentSortOrder = e.target.value;
+      sortArtwork();
+      renderGallery();
+    });
+
+    // Lightbox controls
+    document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+    document.getElementById('lightbox-next').addEventListener('click', nextImage);
+    document.getElementById('lightbox-prev').addEventListener('click', prevImage);
+
+    // Lightbox click outside to close
+    document.getElementById('lightbox').addEventListener('click', (e) => {
+      if (e.target.id === 'lightbox') {
+        closeLightbox();
+      }
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (currentLightboxIndex === -1) return;
+      if (e.key === 'ArrowRight') nextImage();
+      if (e.key === 'ArrowLeft') prevImage();
+      if (e.key === 'Escape') closeLightbox();
+    });
+  }
+
+  // Start when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGallery);
+  } else {
+    initGallery();
+  }
+</script>
+
+</body>
+</html>
